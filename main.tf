@@ -139,6 +139,12 @@ resource "azurerm_subnet_route_table_association" "aks" {
 }
 
 resource "azurerm_virtual_network_peering" "peer" {
+  # Set explicit dependency on resources that need the subnet to be in a Succeeded state
+  # before peering can be established, to avoid a ReferencedResourceNotProvisioned error.
+  depends_on = [
+    azurerm_subnet_route_table_association.association,
+    azurerm_subnet_route_table_association.aks,
+  ]
   for_each = local.peers
 
   name                         = each.key
